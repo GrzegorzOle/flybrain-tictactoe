@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FlyBrain Tic-Tac-Toe</title>
+  <meta name="description" content="Watch a fruit-fly mushroom body model learn tic-tac-toe through dopamine-gated plasticity.">
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <img src="/static/favicon.svg" alt="" width="36" height="36">
+    <div>
+      <h1 data-i18n="title">FlyBrain Tic-Tac-Toe</h1>
+      <p data-i18n="subtitle">Teach a fruit-fly brain to play — and watch its memory form, synapse by synapse.</p>
+    </div>
+  </div>
+  <div class="lang" role="group" aria-label="Language">
+    <button type="button" data-lang="en">EN</button>
+    <button type="button" data-lang="pl">PL</button>
+  </div>
+</header>
+
+<main class="layout">
+  <section class="panel play">
+    <h2 data-i18n="play_title">1. Play &amp; teach</h2>
+    <p class="symbols" id="symbols"></p>
+    <div id="board" class="board" aria-label="Board"></div>
+    <div id="status" class="status" aria-live="polite"></div>
+    <div class="row">
+      <button type="button" id="btn-new-human" class="primary" data-i18n="you_start">You start</button>
+      <button type="button" id="btn-new-fly" data-i18n="fly_starts">Fly starts</button>
+    </div>
+    <div class="stepper">
+      <label class="check"><input type="checkbox" id="step-mode"> <span data-i18n="step_mode">Step by step</span></label>
+      <button type="button" id="btn-next" class="next" data-i18n="next">Next step ▶</button>
+      <label class="speed"><span data-i18n="speed">Speed</span>
+        <input type="range" id="speed" min="0" max="4" value="2"></label>
+    </div>
+  </section>
+
+  <section class="panel brain">
+    <div class="phase">
+      <span id="phase-tag" class="tag"></span>
+      <h2 id="phase-title"></h2>
+    </div>
+    <div class="canvas-wrap"><canvas id="brain" aria-label="Fly brain activity"></canvas></div>
+    <div id="narration" class="narration"></div>
+    <ul class="legend">
+      <li><i class="dot active"></i><span data-i18n="lg_active">firing neuron</span></li>
+      <li><i class="dot good"></i><span data-i18n="lg_good">memory: “approach” (good)</span></li>
+      <li><i class="dot bad"></i><span data-i18n="lg_bad">memory: “avoid” (bad)</span></li>
+      <li><i class="dot neutral"></i><span data-i18n="lg_neutral">no memory yet</span></li>
+    </ul>
+  </section>
+
+  <section class="panel memory">
+    <h2 data-i18n="memory_title">2. Memory</h2>
+    <div class="stats" id="stats"></div>
+    <h3 data-i18n="journal_title">Learning journal</h3>
+    <p class="hint" data-i18n="journal_hint">After every game dopamine neurons compare what the fly expected with what happened. The difference (prediction error δ) rewrites its synapses.</p>
+    <div id="journal" class="journal"></div>
+  </section>
+
+  <section class="panel train">
+    <h2 data-i18n="train_title">3. Training camp</h2>
+    <p class="hint" data-i18n="train_hint">Let the fly play many fast games against a sparring partner and watch the memory map and learning curve change.</p>
+    <div class="row wrap">
+      <label><span data-i18n="opponent">Opponent</span>
+        <select id="opponent">
+          <option value="mix" data-i18n="opp_mix">mixed</option>
+          <option value="random" data-i18n="opp_random">random</option>
+          <option value="heuristic" data-i18n="opp_heuristic">clever (wins &amp; blocks)</option>
+          <option value="self" data-i18n="opp_self">itself</option>
+        </select>
+      </label>
+      <button type="button" class="primary" data-train="100">+100</button>
+      <button type="button" class="primary" data-train="1000">+1000</button>
+      <button type="button" class="primary" data-train="5000">+5000</button>
+      <button type="button" id="btn-stop" data-i18n="stop" disabled>Stop</button>
+    </div>
+    <div class="progress"><div id="progress-bar"></div></div>
+    <canvas id="curve" aria-label="Learning curve"></canvas>
+    <ul class="legend small">
+      <li><i class="line win"></i><span data-i18n="wins">wins</span></li>
+      <li><i class="line draw"></i><span data-i18n="draws">draws</span></li>
+      <li><i class="line loss"></i><span data-i18n="losses">losses</span></li>
+    </ul>
+    <div class="row wrap">
+      <button type="button" id="btn-exam" data-i18n="exam">Exam (no learning)</button>
+      <button type="button" id="btn-reset" class="danger" data-i18n="reset">New fly (forget everything)</button>
+    </div>
+    <div id="exams" class="exams"></div>
+  </section>
+
+  <section class="panel about">
+    <h2 data-i18n="about_title">How does it work?</h2>
+    <div id="about"></div>
+  </section>
+</main>
+<footer class="foot" data-i18n="footer">Model inspired by the published Drosophila connectome. Brain sizes are scaled down.</footer>
+<script src="/static/app.js"></script>
+</body>
+</html>

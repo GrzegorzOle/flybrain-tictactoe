@@ -123,6 +123,14 @@ one (for example, switching from synthetic to FlyWire), stored flies cannot
 be carried over. The visitor gets a new fly and a one-line notice
 explaining why.
 
+### Windows and IIS
+
+`windows/` builds the app into a single `FlyBrain.exe` (nothing else to
+install) that runs in a console or as a Windows service, with IIS in front of
+it as a reverse proxy. See [windows/README.md](windows/README.md). The
+`Windows build` GitHub Actions workflow builds and tests the exe and offers it
+as a download.
+
 ## The model
 
 ### What comes from the connectome
@@ -306,6 +314,8 @@ static/                single-page front end (HTML, CSS, JavaScript, no build st
 Dockerfile
 requirements.txt
 requirements-import.txt  extra packages for flywire_import.py
+windows/               single-exe Windows build, service wrapper, IIS web.config
+.github/workflows/windows.yml  builds and tests the Windows exe
 ```
 
 ## References

@@ -2,9 +2,9 @@
 
 Run locally:   python server.py
 Production:    gunicorn -w 2 -b 0.0.0.0:8000 server:app
+Windows:       see windows/README.md
 """
 
-import fcntl
 import json
 import os
 import re
@@ -28,6 +28,30 @@ SESSION_TTL_DAYS = float(os.environ.get("FLY_SESSION_TTL_DAYS", "30"))
 MAX_TRAIN_CHUNK = int(os.environ.get("FLY_MAX_TRAIN_CHUNK", "500"))
 COOKIE = "fly_session"
 TOKEN_RE = re.compile(r"^[A-Za-z0-9_-]{16,64}$")
+
+if os.name == "nt":
+    import msvcrt
+
+    def _lock(f):
+        f.seek(0)
+        while True:
+            try:
+                msvcrt.locking(f.fileno(), msvcrt.LK_NBLCK, 1)
+                return
+            except OSError:
+                time.sleep(0.02)
+
+    def _unlock(f):
+        f.seek(0)
+        msvcrt.locking(f.fileno(), msvcrt.LK_UNLCK, 1)
+else:
+    import fcntl
+
+    def _lock(f):
+        fcntl.flock(f, fcntl.LOCK_EX)
+
+    def _unlock(f):
+        fcntl.flock(f, fcntl.LOCK_UN)
 
 os.makedirs(DATA_DIR, exist_ok=True)
 app = Flask(__name__, static_folder="static", static_url_path="/static")
@@ -91,26 +115,29 @@ def session(create=True):
         token = secrets.token_urlsafe(24)
     npz, meta_path, lock_path = _paths(token)
     with open(lock_path, "a") as lock:
-        fcntl.flock(lock, fcntl.LOCK_EX)
-        s = Session(token)
-        if not is_new:
-            try:
-                s.brain.load(npz)
-                with open(meta_path) as f:
-                    s.meta = json.load(f)
-            except ConnectomeMismatch:
-                # The server now runs a different wiring diagram, so the old
-                # memories cannot be mapped onto it: start a new fly.
-                s = Session(token)
-                s.meta["notice"] = "connectome_changed"
-            except (OSError, ValueError, KeyError):
-                s = Session(token)
-        yield s
-        s.brain.save(npz)
-        tmp = meta_path + ".tmp"
-        with open(tmp, "w") as f:
-            json.dump(s.meta, f)
-        os.replace(tmp, meta_path)
+        _lock(lock)
+        try:
+            s = Session(token)
+            if not is_new:
+                try:
+                    s.brain.load(npz)
+                    with open(meta_path) as f:
+                        s.meta = json.load(f)
+                except ConnectomeMismatch:
+                    # The server now runs a different wiring diagram, so the old
+                    # memories cannot be mapped onto it: start a new fly.
+                    s = Session(token)
+                    s.meta["notice"] = "connectome_changed"
+                except (OSError, ValueError, KeyError):
+                    s = Session(token)
+            yield s
+            s.brain.save(npz)
+            tmp = meta_path + ".tmp"
+            with open(tmp, "w") as f:
+                json.dump(s.meta, f)
+            os.replace(tmp, meta_path)
+        finally:
+            _unlock(lock)
 
 
 def respond(s, payload):

@@ -1,0 +1,65 @@
+name: Windows build
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+  push:
+    branches: [main]
+    paths:
+      - "server.py"
+      - "brain.py"
+      - "static/**"
+      - "connectome/**"
+      - "windows/**"
+      - ".github/workflows/windows.yml"
+
+permissions:
+  contents: write  # only used to attach the zip to a published release
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build FlyBrain.exe
+        shell: pwsh
+        run: ./windows/build.ps1
+
+      - name: Test the exe and the Windows service
+        shell: pwsh
+        run: ./windows/smoke-test.ps1
+
+      - name: Show logs
+        if: failure()
+        shell: pwsh
+        run: |
+          Get-ChildItem C:\FlyBrainTest -Recurse -Filter *.log -ErrorAction SilentlyContinue |
+            ForEach-Object { "== $($_.FullName)"; Get-Content $_.FullName -Tail 80 }
+          Get-WinEvent -LogName System -MaxEvents 50 |
+            Where-Object ProviderName -eq "Service Control Manager" |
+            Format-List TimeCreated, Id, Message
+
+      - name: Package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory package | Out-Null
+          Copy-Item windows/dist/FlyBrain.exe, windows/README.md, windows/web.config, LICENSE package/
+          Compress-Archive package/* FlyBrain-windows.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FlyBrain-windows
+          path: package/
+
+      - name: Attach to the release
+        if: github.event_name == 'release'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ github.event.release.tag_name }}" FlyBrain-windows.zip --clobber

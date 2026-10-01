@@ -1,0 +1,6 @@
+# Everything needed to build FlyBrain.exe (see README.md in this folder).
+flask>=3.0,<4
+numpy>=1.24,<3
+waitress>=3.0,<4
+pywin32>=306; sys_platform == "win32"
+pyinstaller>=6.10,<7

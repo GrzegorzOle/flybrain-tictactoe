@@ -37,8 +37,8 @@ interface is available in English and Polish.
 Requirements: Python 3.10 or newer.
 
 ```bash
-git clone <this repository>
-cd FlaysBrainGame
+git clone https://github.com/GrzegorzOle/flybrain-tictactoe.git
+cd flybrain-tictactoe
 python3 -m venv .venv
 . .venv/bin/activate
 pip install -r requirements.txt
@@ -117,7 +117,7 @@ learning rule:
 | Kenyon cells (KCs) | 4000 cells. Each samples ~7 random projection neurons, as the connectome shows (random, unstructured PN→KC wiring) |
 | APL neuron | global inhibition: only the 5% most strongly driven KCs fire (sparse coding) |
 | MBONs (mushroom body output neurons) | two output neurons, "approach" and "avoid" |
-| KC→MBON synapses | **the memory**: the only plastic synapses in the mushroom body |
+| KC→MBON synapses | **the memory**: the main plastic synapses of the mushroom body |
 | PAM dopamine neurons | reward signal: potentiate KC→approach and depress KC→avoid |
 | PPL1 dopamine neurons | punishment signal: the opposite |
 | Lateral horn | a parallel sensory→output pathway |
@@ -231,3 +231,7 @@ requirements.txt
 - Caron et al. (2013). Random convergence of olfactory inputs in the *Drosophila* mushroom body. *Nature* 497.
 - Lin et al. (2014). Sparse, decorrelated odor coding in the mushroom body enhances learned odor discrimination. *Nature Neuroscience* 17.
 - Hige et al. (2015). Heterosynaptic plasticity underlies aversive olfactory learning in *Drosophila*. *Neuron* 88.
+
+## License
+
+MIT, see [LICENSE](LICENSE).

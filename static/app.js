@@ -24,6 +24,7 @@ const I18N = {
     side_right: 'right', side_left: 'left',
     notice_rewired: '<p class="bad">The server now uses a different wiring diagram, so your previous fly could not keep its memories. This is a new, naive fly.</p>',
     symbols: 'You: <b class="human">{h}</b> · Fly: <b class="fly">{f}</b>',
+    symbols_auto: 'Fly: <b class="fly">{f}</b> · {opp}: <b class="human">{h}</b>',
     st_your_turn: 'Your turn — click a cell.', st_thinking: 'The fly is thinking…',
     st_fly_won: '<b>The fly won.</b>', st_you_won: '<b>You won!</b>', st_draw: '<b>Draw.</b>', curve_empty: 'No games played yet.',
     st_new: 'Start a new game.', st_training: 'Training in progress…',
@@ -74,6 +75,14 @@ const I18N = {
     ph_train_tag: 'training', ph_train_title: 'Training camp: game {g} of {t}',
     ph_train_text: '<p>Opponent: <b>{opp}</b>. In this batch: <span class="good">{w}</span> wins, {d} draws, <span class="bad">{l}</span> losses.</p><p>Dopamine released: PAM <span class="num">{pam}</span>, PPL1 <span class="num">{ppl1}</span>. <span class="num">{k}</span> Kenyon cells changed their synapses.</p>',
     ph_train_done: 'Training finished',
+    auto: 'Train automatically ({n} games)', auto_stop: 'Stop training',
+    auto_hint: 'Watch the fly learn on its own, then play against the trained brain.',
+    ph_auto_tag: 'auto training', ph_auto_exam_title: 'Exam before training',
+    ph_auto_exam_text: '<p>First the fly takes an exam with learning switched off. Against the clever player it loses <span class="bad">{hl}</span> of games, against the random one it wins <span class="good">{rw}</span>.</p><p>Now it plays {n} games against mixed opponents and learns after each one. From every batch of 10 games one is replayed on the board.</p>',
+    ph_auto_title: 'Auto training: game {g} of {t}',
+    ph_auto_text: '<p>Replay of game {g}: the fly plays {f} against <b>{opp}</b>, result: <b>{res}</b>.</p><p>Last 10 games: <span class="good">{w}</span> wins, {d} draws, <span class="bad">{l}</span> losses. Dopamine released: PAM <span class="num">{pam}</span>, PPL1 <span class="num">{ppl1}</span>. <span class="num">{k}</span> Kenyon cells changed their synapses.</p>',
+    ph_auto_done_title: 'Trained fly: your turn!',
+    ph_auto_done_text: '<p>Exam after {n} games of training (before → after), learning switched off:</p><p>Random player: wins <span class="good">{rw0} → {rw}</span>, losses <span class="bad">{rl0} → {rl}</span>.<br>Clever player: draws {hd0} → {hd}, losses <span class="bad">{hl0} → {hl}</span>.</p><p>Level: <b>{lvl0}</b> → <b>{lvl}</b>.</p><p>You start: click a cell to play against the trained brain. It keeps learning from your games.</p>',
     ph_exam_tag: 'exam', ph_exam_title: 'Exam results',
     ph_exam_text: '<p>100 games against each opponent, with learning switched off.</p><p>Random player: <span class="good">{rw}</span> wins, {rd} draws, <span class="bad">{rl}</span> losses.<br>Clever player: <span class="good">{hw}</span> wins, {hd} draws, <span class="bad">{hl}</span> losses.</p><p>Level: <b>{lvl}</b>.</p>',
     err: 'Something went wrong: {e}',
@@ -115,6 +124,7 @@ const I18N = {
     side_right: 'prawe', side_left: 'lewe',
     notice_rewired: '<p class="bad">Serwer używa teraz innej mapy połączeń, więc poprzednia mucha nie mogła zachować wspomnień. To nowa, niedoświadczona mucha.</p>',
     symbols: 'Ty: <b class="human">{h}</b> · Mucha: <b class="fly">{f}</b>',
+    symbols_auto: 'Mucha: <b class="fly">{f}</b> · {opp}: <b class="human">{h}</b>',
     st_your_turn: 'Twój ruch: kliknij pole.', st_thinking: 'Mucha myśli…',
     st_fly_won: '<b>Mucha wygrała.</b>', st_you_won: '<b>Wygrywasz!</b>', st_draw: '<b>Remis.</b>', curve_empty: 'Brak rozegranych gier.',
     st_new: 'Rozpocznij nową grę.', st_training: 'Trwa trening…',
@@ -165,6 +175,14 @@ const I18N = {
     ph_train_tag: 'trening', ph_train_title: 'Obóz treningowy: gra {g} z {t}',
     ph_train_text: '<p>Przeciwnik: <b>{opp}</b>. W tej serii: <span class="good">{w}</span> wygranych, {d} remisów, <span class="bad">{l}</span> przegranych.</p><p>Wydzielona dopamina: PAM <span class="num">{pam}</span>, PPL1 <span class="num">{ppl1}</span>. Komórek Kenyona ze zmienionymi synapsami: <span class="num">{k}</span>.</p>',
     ph_train_done: 'Trening zakończony',
+    auto: 'Trenuj automatycznie ({n} gier)', auto_stop: 'Zatrzymaj trening',
+    auto_hint: 'Zobacz, jak mucha uczy się sama, a potem zagraj z wytrenowanym mózgiem.',
+    ph_auto_tag: 'trening automatyczny', ph_auto_exam_title: 'Egzamin przed treningiem',
+    ph_auto_exam_text: '<p>Najpierw mucha zdaje egzamin z wyłączonym uczeniem. Ze sprytnym graczem przegrywa <span class="bad">{hl}</span> gier, a z losowym wygrywa <span class="good">{rw}</span>.</p><p>Teraz rozegra {n} gier z różnymi przeciwnikami i po każdej będzie się uczyć. Z każdej serii 10 gier jedna jest odtwarzana na planszy.</p>',
+    ph_auto_title: 'Trening automatyczny: gra {g} z {t}',
+    ph_auto_text: '<p>Powtórka gry {g}: mucha gra jako {f}, przeciwnik: <b>{opp}</b>, wynik: <b>{res}</b>.</p><p>Ostatnie 10 gier: <span class="good">{w}</span> wygranych, {d} remisów, <span class="bad">{l}</span> przegranych. Wydzielona dopamina: PAM <span class="num">{pam}</span>, PPL1 <span class="num">{ppl1}</span>. Komórek Kenyona ze zmienionymi synapsami: <span class="num">{k}</span>.</p>',
+    ph_auto_done_title: 'Mucha wytrenowana: Twój ruch!',
+    ph_auto_done_text: '<p>Egzamin po {n} grach treningu (przed → po), z wyłączonym uczeniem:</p><p>Gracz losowy: wygrane <span class="good">{rw0} → {rw}</span>, przegrane <span class="bad">{rl0} → {rl}</span>.<br>Sprytny gracz: remisy {hd0} → {hd}, przegrane <span class="bad">{hl0} → {hl}</span>.</p><p>Poziom: <b>{lvl0}</b> → <b>{lvl}</b>.</p><p>Zaczynasz: kliknij pole, aby zagrać z wytrenowanym mózgiem. Mucha nadal uczy się z Waszych gier.</p>',
     ph_exam_tag: 'egzamin', ph_exam_title: 'Wyniki egzaminu',
     ph_exam_text: '<p>Po 100 gier z każdym przeciwnikiem, z wyłączonym uczeniem.</p><p>Gracz losowy: <span class="good">{rw}</span> wygranych, {rd} remisów, <span class="bad">{rl}</span> przegranych.<br>Sprytny gracz: <span class="good">{hw}</span> wygranych, {hd} remisów, <span class="bad">{hl}</span> przegranych.</p><p>Poziom: <b>{lvl}</b>.</p>',
     err: 'Coś poszło nie tak: {e}',
@@ -230,6 +248,8 @@ let game = null;       // current game view
 let busy = false;
 let training = false;
 let stopRequested = false;
+let autoRunning = false;
+let viewFly = null;    // fly symbol of a replayed training game
 let journal = [];      // learning journal entries (browser only)
 let currentPhase = null;
 
@@ -319,8 +339,13 @@ function valueColor(v, alpha = 0.55) {
   return `rgba(${c[0]},${c[1]},${c[2]},${(alpha * s).toFixed(3)})`;
 }
 
+function flySymbol() {
+  if (viewFly !== null) return viewFly;
+  return game ? game.fly : -1;
+}
+
 function renderBoard(board, winLine) {
-  const fly = game ? game.fly : -1;
+  const fly = flySymbol();
   const cells = $('#board').children;
   for (let i = 0; i < 9; i++) {
     const c = cells[i];
@@ -352,6 +377,10 @@ function renderBoard(board, winLine) {
 }
 
 function renderSymbols() {
+  if (viewFly !== null) {
+    $('#symbols').innerHTML = t('symbols_auto', { f: sym(viewFly), h: sym(-viewFly), opp: t('opponent') });
+    return;
+  }
   if (!game) return;
   $('#symbols').innerHTML = t('symbols', { h: sym(-game.fly), f: sym(game.fly) });
 }
@@ -374,6 +403,10 @@ function refreshControls() {
   document.querySelectorAll('#btn-new-human, #btn-new-fly, #btn-exam, #btn-reset, [data-train]')
     .forEach((b) => { b.disabled = locked; });
   $('#btn-stop').disabled = !training;
+  const auto = $('#btn-auto');
+  auto.disabled = locked && !autoRunning;
+  auto.textContent = autoRunning ? t('auto_stop') : t('auto', { n: AUTO_GAMES });
+  auto.classList.toggle('running', autoRunning);
   $('#opponent').disabled = locked;
   renderStatus();
 }
@@ -794,6 +827,128 @@ async function train(total) {
   refreshControls();
 }
 
+/* ---- automatic training: exam, 300 visible games, exam, then play ---- */
+const AUTO_GAMES = 300;
+const AUTO_BATCH = 10;
+
+function nap(ms) {
+  return new Promise((r) => setTimeout(r, ms * speedFactor()));
+}
+
+function winLineOf(b) {
+  return LINE_ICON.find(([a, c, d]) => b[a] !== 0 && b[a] === b[c] && b[a] === b[d]) || null;
+}
+
+async function replayGame(lg) {
+  viewFly = lg.fly;
+  renderSymbols();
+  clearThinking();
+  V.eyeBoard = Array(9).fill(0);
+  V.cxBoard = Array(9).fill(0);
+  renderBoard(V.eyeBoard);
+  let prev = Array(9).fill(0);
+  for (const s of lg.steps) {
+    if (stopRequested) return;
+    V.cx = Array(9).fill(null);
+    if (s.kc) {
+      V.pn = new Set(s.pn);
+      V.kc = s.kc;
+      V.kcSet = new Set(s.kc);
+      V.value = s.value;
+      V.cx[s.cell] = s.value;
+      V.chosen = s.cell;
+      V.dn = 1;
+    } else {
+      V.pn = new Set(); V.kc = []; V.kcSet = new Set();
+      V.value = null; V.chosen = null;
+    }
+    V.cxBoard = prev;
+    V.eyeBoard = s.board.slice();
+    prev = s.board.slice();
+    ui.focus = s.cell;
+    renderBoard(s.board);
+    await nap(s.kc ? 240 : 150);
+  }
+  ui.focus = null;
+  renderBoard(prev, winLineOf(prev));
+}
+
+function examNumbers(e) {
+  return {
+    rw: pct(e.random[0]), rd: pct(e.random[1]), rl: pct(e.random[2]),
+    hw: pct(e.heuristic[0]), hd: pct(e.heuristic[1]), hl: pct(e.heuristic[2]),
+    lvl: t('lvl')[levelOf(e)],
+  };
+}
+
+async function autoTrain() {
+  if (busy || training) return;
+  notice = null;
+  training = autoRunning = true;
+  stopRequested = false;
+  refreshControls();
+  clearThinking();
+  const tag = () => t('ph_auto_tag');
+  let before = null;
+  let after = null;
+  let done = 0;
+  try {
+    let d = await api('/api/exam', {});
+    applyState(d, false);
+    before = d.exam;
+    const b = examNumbers(before);
+    showPhase({
+      tag, title: () => t('ph_auto_exam_title'),
+      html: () => t('ph_auto_exam_text', { ...b, n: AUTO_GAMES }),
+    });
+    await nap(3000);
+    while (done < AUTO_GAMES && !stopRequested) {
+      d = await api('/api/train', { games: AUTO_BATCH, opponent: 'mix', show: true });
+      const c = d.chunk;
+      const lg = c.last_game;
+      const g = done + c.games;
+      const w = c.results.filter((r) => r === 1).length;
+      const l = c.results.filter((r) => r === -1).length;
+      showPhase({
+        tag, title: () => t('ph_auto_title', { g, t: AUTO_GAMES }),
+        html: () => t('ph_auto_text', {
+          g, f: sym(lg.fly), opp: t('opp_' + lg.opponent),
+          res: t(lg.result === 1 ? 'res_win' : lg.result === -1 ? 'res_loss' : 'res_draw'),
+          w, d: c.games - w - l, l, pam: c.pam.toFixed(1), ppl1: c.ppl1.toFixed(1), k: c.kc_changed,
+        }),
+      });
+      await replayGame(lg);
+      done = g;
+      applyState(d, false);
+      setMemory(d.memory, true);
+      V.pam = clamp(c.pam / c.games, 0.15, 1);
+      V.ppl1 = clamp(c.ppl1 / c.games, 0.15, 1);
+      $('#progress-bar').style.width = pct(done / AUTO_GAMES);
+      await nap(350);
+    }
+    d = await api('/api/exam', {});
+    applyState(d, false);
+    after = d.exam;
+  } catch (e) {
+    showError(e);
+  }
+  viewFly = null;
+  renderSymbols();
+  training = autoRunning = false;
+  setTimeout(() => { if (!training) $('#progress-bar').style.width = '0'; }, 1200);
+  refreshControls();
+  if (!after) return;
+  await newGame(false);
+  const b = examNumbers(before);
+  const a = examNumbers(after);
+  showPhase({
+    tag, title: () => t('ph_auto_done_title'),
+    html: () => t('ph_auto_done_text', {
+      ...a, n: done, rw0: b.rw, rl0: b.rl, hd0: b.hd, hl0: b.hl, lvl0: b.lvl,
+    }),
+  });
+}
+
 async function exam() {
   if (busy || training) return;
   busy = true;
@@ -965,7 +1120,7 @@ function drawEyes() {
     ctx.setLineDash([]);
     const v = V.eyeBoard[i];
     if (v) {
-      const isFly = game && v === game.fly;
+      const isFly = v === flySymbol();
       text(sym(v), bx + 29, by + 30, { size: 22, bold: true, align: 'center', base: 'middle', color: isFly ? 'rgba(255,181,71,.55)' : 'rgba(76,201,240,.55)' });
     }
     for (let k = 0; k < 3; k++) {
@@ -1129,7 +1284,7 @@ function drawCX() {
     if (val !== null && !occ) fill = memColor(val);
     circle(x, y, 20, fill, i === V.chosen ? COLORS.fly : i === V.cxFocus ? '#ffffff' : '#27304f', i === V.chosen || i === V.cxFocus ? 2.5 : 1);
     if (occ) {
-      const isFly = game && occ === game.fly;
+      const isFly = occ === flySymbol();
       text(sym(occ), x, y + 1, { size: 16, bold: true, align: 'center', base: 'middle', color: isFly ? 'rgba(255,181,71,.6)' : 'rgba(76,201,240,.6)' });
     } else if (val !== null) {
       text(fmt(val), x, y + 1, { size: 10, bold: true, align: 'center', base: 'middle', color: '#0b1020' });
@@ -1194,7 +1349,7 @@ function applyLang() {
   document.querySelectorAll('[data-lang]').forEach((b) => b.classList.toggle('on', b.dataset.lang === lang));
   renderAbout();
   renderSymbols();
-  renderStatus();
+  refreshControls();
   renderStats();
   renderJournal();
   renderExams();
@@ -1243,6 +1398,10 @@ async function init() {
   $('#speed').addEventListener('input', armWait);
   document.querySelectorAll('[data-train]').forEach((b) => b.addEventListener('click', () => train(+b.dataset.train)));
   $('#btn-stop').addEventListener('click', () => { stopRequested = true; });
+  $('#btn-auto').addEventListener('click', () => {
+    if (autoRunning) stopRequested = true;
+    else autoTrain();
+  });
   $('#btn-exam').addEventListener('click', exam);
   $('#btn-reset').addEventListener('click', resetFly);
   window.addEventListener('resize', () => { resize(); renderCurve(); });

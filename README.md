@@ -33,6 +33,16 @@ partner. You can watch the learning curve and the memory map change, then
 take an exam (100 games with learning switched off) to measure progress. The
 interface is available in English and Polish.
 
+The **Train automatically (300 games)** button runs the whole cycle for you.
+The fly takes an exam, then plays 300 games against mixed opponents (random,
+clever and itself) in batches of 10. One game from each batch is replayed on
+the board, with its sensory neurons and Kenyon cells firing, while the memory
+map, dopamine signals and learning curve update. When training ends the fly
+takes a second exam. A before/after comparison is shown and a new game starts,
+so you can play straight away against the trained brain. On average a fly
+trained this way loses about a third of its games against the clever player,
+down from about 85%.
+
 ![One learning step: the fly lost and PPL1 punishment dopamine rewrites the synapses of the active Kenyon cells](docs/learning-step.png)
 
 ![After 1000 training games: the mushroom body is full of "approach" (green) and "avoid" (red) memories](docs/after-training.png)
@@ -280,7 +290,7 @@ created on the first request.
 | `GET /api/state` | | games, totals, learning curve, memory map, synapse counts, exams, current game |
 | `POST /api/new_game` | `{"fly_starts": bool}` | new game; if the fly starts, also its thinking (`think`) |
 | `POST /api/move` | `{"cell": 0..8}` | `perception`, the fly's `think` (all candidate moves with active neurons and values), `learning` when the game ended (reward, dopamine, step-by-step `replay`, observational learning), `game`, `state` |
-| `POST /api/train` | `{"games": n, "opponent": "mix"}` | state plus `chunk` (results, dopamine totals, number of KCs changed) |
+| `POST /api/train` | `{"games": n, "opponent": "mix", "show": false}` | state plus `chunk` (results, dopamine totals, number of KCs changed; with `"show": true` also `last_game`, every move of the batch's last game with the neurons that fired) |
 | `POST /api/exam` | | state plus `exam` (100 games vs random and 100 vs clever, no learning) |
 | `POST /api/reset` | | a new, naive fly |
 

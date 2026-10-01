@@ -358,18 +358,30 @@ def reward_for(w, player):
 
 
 def play_training_game(brain, opponent, fly_symbol, rng, epsilon=0.1,
-                       observe=True):
-    """One fast training game. opponent: 'random' | 'heuristic' | 'self'."""
+                       observe=True, log=None):
+    """One fast training game. opponent: 'random' | 'heuristic' | 'self'.
+
+    With a `log` list, every move is appended to it (cell, player, board
+    after the move and, for the fly's moves, the neurons that fired).
+    """
     board = [0] * 9
     player = 1
     trails = {1: [], -1: []}
     while winner(board) is None:
+        evals = None
         if player == fly_symbol or opponent == "self":
-            m, _ = brain.choose(board, player, epsilon=epsilon)
+            m, evals = brain.choose(board, player, epsilon=epsilon)
         else:
             m = OPPONENTS[opponent](board, player, rng)
         board[m] = player
         trails[player].append(encode(board, player))
+        if log is not None:
+            step = {"cell": m, "player": player, "board": list(board)}
+            if evals is not None:
+                r = evals[m]
+                step.update(pn=np.flatnonzero(r["pn"]).tolist(),
+                            kc=np.flatnonzero(r["kc"]).tolist(), value=float(r["value"]))
+            log.append(step)
         player = -player
     w = winner(board)
     pam, ppl1, _ = brain.learn(trails[fly_symbol], reward_for(w, fly_symbol))

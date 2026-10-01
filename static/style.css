@@ -82,6 +82,12 @@ select { background: var(--panel-2); border: 1px solid var(--line); border-radiu
 .row { display: flex; gap: 8px; margin-top: 12px; }
 .row.wrap { flex-wrap: wrap; align-items: center; }
 .symbols { margin: 0 0 10px; color: var(--muted); }
+button.auto {
+  display: block; width: 100%; margin-top: 12px; padding: 10px 14px; font-weight: 600;
+  background: linear-gradient(90deg, #3a2a10, #25306a); border-color: var(--fly);
+}
+button.auto.running { background: var(--panel-2); border-color: var(--bad); }
+.auto-hint { margin: .4rem 0 0; text-align: center; }
 .symbols b.fly { color: var(--fly); }
 .symbols b.human { color: var(--human); }
 

@@ -314,6 +314,7 @@ def train():
     opponent = data.get("opponent", "mix")
     if opponent not in ("mix", "random", "heuristic", "self"):
         opponent = "mix"
+    show = bool(data.get("show", False))
     mix = ["random", "heuristic", "self"]
     with session() as s:
         b = s.brain
@@ -321,9 +322,13 @@ def train():
         before = b.memory_map().copy()
         pam = ppl1 = 0.0
         results = []
+        log = None
         for i in range(games):
-            opp = mix[(b.games + i) % 3] if opponent == "mix" else opponent
-            r, p, q = play_training_game(b, opp, 1 if (b.games % 2 == 0) else -1, rng)
+            opp = mix[b.games % 3] if opponent == "mix" else opponent
+            fly = 1 if (b.games % 2 == 0) else -1
+            # with show=True the last game is recorded so the page can replay it
+            log = [] if show and i == games - 1 else None
+            r, p, q = play_training_game(b, opp, fly, rng, log=log)
             results.append(r)
             pam += p
             ppl1 += q
@@ -332,6 +337,12 @@ def train():
         out["chunk"] = {"games": games, "pam": _r(pam), "ppl1": _r(ppl1),
                         "results": results,
                         "kc_changed": int((np.abs(change) > 1e-4).sum())}
+        if log is not None:
+            out["chunk"]["last_game"] = {
+                "fly": fly, "opponent": opp, "result": r,
+                "steps": [{**st, "value": _r(st["value"])} if "value" in st else st
+                          for st in log],
+            }
         return respond(s, out)
 
 

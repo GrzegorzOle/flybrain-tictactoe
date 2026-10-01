@@ -22,7 +22,7 @@ browser ──HTTPS──> IIS (URL Rewrite + ARR) ──HTTP──> FlyBrain.ex
   powershell -ExecutionPolicy Bypass -File windows\build.ps1
   ```
 
-  The result is `windows\dist\FlyBrain.exe`, about 30–40 MB.
+  The result is `windows\dist\FlyBrain.exe`, about 25 MB.
 
 The exe is not code-signed. If Windows marks the downloaded file as blocked,
 run `Unblock-File .\FlyBrain.exe` or tick *Unblock* in its properties.

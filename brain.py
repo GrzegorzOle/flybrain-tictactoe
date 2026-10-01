@@ -15,9 +15,16 @@ MBONs. Learning happens only at the KC -> MBON and LH -> output synapses and
 is gated by dopamine: PAM neurons report "better than expected" (reward),
 PPL1 neurons report "worse than expected" (punishment).
 
-Layer sizes are scaled down, but the proportions (about 7 PN inputs per KC,
-about 5% of KCs active at a time) follow the connectome data.
+The PN -> KC wiring is the real one when connectome/flywire_mb_right.npz
+exists (built by flywire_import.py from the FlyWire v783 release): every
+Kenyon cell of the right mushroom body, with the synapse counts it receives
+from each input neuron type. Without that file a synthetic wiring with the
+same statistics (random inputs per KC) is used. In both cases about 5% of
+KCs are active at a time.
 """
+
+import hashlib
+import os
 
 import numpy as np
 
@@ -85,32 +92,108 @@ def encode(board, me):
     return x
 
 
-N_KC = 4000         # Kenyon cells (a real fly has about 2,000 per hemisphere)
-KC_CLAWS = 7        # PN inputs per Kenyon cell (connectome average: ~6-7)
 KC_SPARSITY = 0.05  # fraction of KCs allowed to fire (APL inhibition)
 WIRING_SEED = 7
+CONNECTOME_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "connectome")
+FLYWIRE_FILE = os.path.join(CONNECTOME_DIR, "flywire_mb_right.npz")
 
-_rng = np.random.default_rng(WIRING_SEED)
-# Fixed random PN -> KC wiring, shared by every fly (it is genetic, not learned)
-PN_KC = np.zeros((N_KC, N_PN), dtype=np.float32)
-for _k in range(N_KC):
-    PN_KC[_k, _rng.choice(N_PN, size=KC_CLAWS, replace=False)] = 1.0
-KC_CLAWS_OF = [np.flatnonzero(PN_KC[k]).tolist() for k in range(N_KC)]
-# Tiny fixed jitter breaks ties between equally driven KCs
-KC_NOISE = _rng.random(N_KC).astype(np.float32) * 1e-3
-K_ACTIVE = int(N_KC * KC_SPARSITY)
+
+class Connectome:
+    """The fixed PN -> KC wiring shared by every fly (it is genetic, not learned).
+
+    pn_kc[k, i] is the strength of the input that board feature i delivers to
+    Kenyon cell k. `info` describes the circuit for the web page.
+    """
+
+    def __init__(self, cid, pn_kc, info, rng=None):
+        self.id = cid
+        self.pn_kc = np.ascontiguousarray(pn_kc, dtype=np.float32)
+        self.n_kc = self.pn_kc.shape[0]
+        self.k_active = int(self.n_kc * KC_SPARSITY)
+        # Tiny fixed jitter breaks ties between equally driven KCs. It is
+        # seeded, so the same board always activates the same KCs.
+        rng = rng or np.random.default_rng(WIRING_SEED)
+        self.noise = rng.random(self.n_kc).astype(np.float32) * 1e-3
+        self.info = info
+
+
+def synthetic_connectome(n_kc=4000, claws=7):
+    """Random wiring with the statistics of the real mushroom body."""
+    rng = np.random.default_rng(WIRING_SEED)
+    pn_kc = np.zeros((n_kc, N_PN), dtype=np.float32)
+    for k in range(n_kc):
+        pn_kc[k, rng.choice(N_PN, size=claws, replace=False)] = 1.0
+    return Connectome(f"synthetic-{n_kc}-{claws}", pn_kc, {
+        "kind": "synthetic", "n_kc": n_kc, "claws": claws,
+    }, rng)
+
+
+def flywire_connectome(path=FLYWIRE_FILE):
+    """Real wiring of one mushroom body, extracted by flywire_import.py.
+
+    Board feature i drives the i-th input neuron type (sorted by how many
+    Kenyon cells it reaches); its weight onto each KC is the number of
+    synapses FlyWire found between them.
+    """
+    with np.load(path) as d:
+        counts = d["pn_kc"]
+        if counts.shape[1] < N_PN:
+            raise ValueError(f"{path}: only {counts.shape[1]} input types, need {N_PN}")
+        pn_kc = counts[:, :N_PN].astype(np.float32)
+        kc_types, kc_n = np.unique(d["kc_types"], return_counts=True)
+        kc_mbon = d["kc_mbon"].astype(np.int64)
+        mbons = [{"type": str(t), "valence": int(v), "kc_synapses": int(n)}
+                 for t, v, n in zip(d["mbon_types"], d["mbon_valence"], kc_mbon.sum(0))]
+        info = {
+            "kind": "flywire",
+            "source": str(d["source"]), "side": str(d["side"]),
+            "n_kc": int(counts.shape[0]),
+            "n_kc_silent": int((pn_kc.sum(1) == 0).sum()),
+            "kc_types": sorted(([str(t), int(n)] for t, n in zip(kc_types, kc_n)),
+                               key=lambda x: -x[1]),
+            "inputs": [str(t) for t in d["pn_types"][:N_PN]],
+            "input_classes": [str(c) for c in d["pn_class"][:N_PN]],
+            "n_input_types": int(counts.shape[1]),
+            "claws": round(float((pn_kc > 0).sum(1).mean()), 1),
+            "pn_kc_synapses": int(pn_kc.sum()),
+            "mbons": mbons,
+            "n_pam": int(d["n_pam"]), "n_ppl1": int(d["n_ppl1"]),
+        }
+    digest = hashlib.sha1(pn_kc.tobytes()).hexdigest()[:8]
+    return Connectome(f"flywire-783-{info['side']}-{digest}", pn_kc, info)
+
+
+def load_connectome(choice=None):
+    """FLY_CONNECTOME: 'auto' (FlyWire if the extract exists), 'flywire' or 'synthetic'."""
+    choice = choice or os.environ.get("FLY_CONNECTOME", "auto")
+    path = os.environ.get("FLY_CONNECTOME_FILE", FLYWIRE_FILE)
+    if choice == "synthetic" or (choice == "auto" and not os.path.exists(path)):
+        return synthetic_connectome()
+    if choice not in ("auto", "flywire"):
+        raise ValueError(f"FLY_CONNECTOME must be auto, flywire or synthetic, not {choice!r}")
+    return flywire_connectome(path)
+
+
+CONNECTOME = load_connectome()
+N_KC = CONNECTOME.n_kc
+K_ACTIVE = CONNECTOME.k_active
+
+
+class ConnectomeMismatch(ValueError):
+    """A saved fly was grown on a different wiring diagram."""
 
 
 class FlyBrain:
     """One fly: the fixed wiring is shared, only the plastic synapses are its own."""
 
-    def __init__(self, seed=None):
+    def __init__(self, seed=None, connectome=None):
         self.rng = np.random.default_rng(seed)
-        self.n_kc = N_KC
-        self.k_active = K_ACTIVE
+        self.wiring = connectome or CONNECTOME
+        self.n_kc = self.wiring.n_kc
+        self.k_active = self.wiring.k_active
         # Plastic synapses onto the output neurons, all starting neutral
-        self.w_approach = np.full(N_KC, KC_W_MAX / 2, dtype=np.float32)
-        self.w_avoid = np.full(N_KC, KC_W_MAX / 2, dtype=np.float32)
+        self.w_approach = np.full(self.n_kc, KC_W_MAX / 2, dtype=np.float32)
+        self.w_avoid = np.full(self.n_kc, KC_W_MAX / 2, dtype=np.float32)
         self.lh_approach = np.full(N_PN, LH_W_MAX / 2, dtype=np.float32)
         self.lh_avoid = np.full(N_PN, LH_W_MAX / 2, dtype=np.float32)
         self.base_lr = 0.05
@@ -125,11 +208,12 @@ class FlyBrain:
 
     # ---------- perception ----------
     def kc_activity(self, pn):
-        drive = PN_KC @ pn + KC_NOISE
+        drive = self.wiring.pn_kc @ pn + self.wiring.noise
         # APL: global inhibition - only the k most strongly driven KCs fire
-        active = np.argpartition(drive, -K_ACTIVE)[-K_ACTIVE:]
-        kc = np.zeros(N_KC, dtype=np.float32)
-        kc[active] = 1.0 / K_ACTIVE
+        k = self.k_active
+        active = np.argpartition(drive, -k)[-k:]
+        kc = np.zeros(self.n_kc, dtype=np.float32)
+        kc[active] = 1.0 / k
         return kc
 
     def respond(self, pn):
@@ -177,7 +261,7 @@ class FlyBrain:
         """
         pam = ppl1 = 0.0
         lr = self.lr
-        dw = np.zeros(N_KC, dtype=np.float32)
+        dw = np.zeros(self.n_kc, dtype=np.float32)
         steps = []
         T = len(afterstates)
         for t, pn in enumerate(afterstates):
@@ -189,7 +273,7 @@ class FlyBrain:
             else:
                 ppl1 -= delta  # punishment: strengthen "avoid", weaken "approach"
             # the error is shared between both pathways
-            step_kc = lr * delta * r["kc"] * K_ACTIVE / 4
+            step_kc = lr * delta * r["kc"] * self.k_active / 4
             step_lh = lr * delta * pn / 4
             before = self.w_approach - self.w_avoid
             self.w_approach += step_kc
@@ -227,10 +311,15 @@ class FlyBrain:
             path, w_approach=self.w_approach, w_avoid=self.w_avoid,
             lh_approach=self.lh_approach, lh_avoid=self.lh_avoid,
             games=self.games, history=np.array(self.history, dtype=np.int8),
+            connectome=np.array(self.wiring.id),
         )
 
     def load(self, path):
         with np.load(path) as d:
+            # files written before the connectome was recorded used the synthetic wiring
+            saved = str(d["connectome"]) if "connectome" in d.files else "synthetic-4000-7"
+            if saved != self.wiring.id:
+                raise ConnectomeMismatch(f"Saved fly uses {saved}, this brain uses {self.wiring.id}")
             for name in ("w_approach", "w_avoid", "lh_approach", "lh_avoid"):
                 arr = d[name].astype(np.float32)
                 if arr.shape != getattr(self, name).shape:

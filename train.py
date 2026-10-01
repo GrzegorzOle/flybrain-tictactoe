@@ -9,7 +9,7 @@ import os
 
 import numpy as np
 
-from brain import FlyBrain, benchmark, play_training_game
+from brain import CONNECTOME, FlyBrain, benchmark, play_training_game
 
 
 def main():
@@ -26,8 +26,13 @@ def main():
     args = ap.parse_args()
 
     brain = FlyBrain()
+    print(f"Connectome: {CONNECTOME.id} ({brain.n_kc} Kenyon cells)")
     if os.path.exists(args.brain) and not args.fresh:
-        brain.load(args.brain)
+        try:
+            brain.load(args.brain)
+        except ValueError as e:
+            raise SystemExit(f"Cannot continue {args.brain}: {e}\n"
+                             "Use --fresh to start a new fly, or --brain with another file.")
         print(f"Loaded {args.brain} ({brain.games} games of experience)")
 
     rng = np.random.default_rng()

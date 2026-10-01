@@ -4,6 +4,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY brain.py server.py train.py ./
+COPY connectome ./connectome
 COPY static ./static
 RUN useradd --create-home fly && mkdir -p /data/sessions && chown -R fly /data
 USER fly

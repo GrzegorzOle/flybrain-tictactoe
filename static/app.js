@@ -19,6 +19,10 @@ const I18N = {
     exam: 'Exam (no learning)', reset: 'New fly (forget everything)',
     about_title: 'How does it work?',
     footer: 'Model inspired by the published Drosophila connectome. Brain sizes are scaled down.',
+    footer_fw: 'Wiring from FlyWire v783 (Dorkenwald et al. 2024, Schlegel et al. 2024; CC-BY 4.0).',
+    badge_fw: 'FlyWire connectome · {side} mushroom body', badge_syn: 'synthetic wiring',
+    side_right: 'right', side_left: 'left',
+    notice_rewired: '<p class="bad">The server now uses a different wiring diagram, so your previous fly could not keep its memories. This is a new, naive fly.</p>',
     symbols: 'You: <b class="human">{h}</b> · Fly: <b class="fly">{f}</b>',
     st_your_turn: 'Your turn — click a cell.', st_thinking: 'The fly is thinking…',
     st_fly_won: '<b>The fly won.</b>', st_you_won: '<b>You won!</b>', st_draw: '<b>Draw.</b>', curve_empty: 'No games played yet.',
@@ -38,8 +42,9 @@ const I18N = {
     c_eyes: 'Eyes · optic lobe', c_cells: 'cell detectors: own / opponent / empty',
     c_lines: 'line detectors (own·opponent marks)',
     c_mb: 'Mushroom body · {n} Kenyon cells', c_apl: 'APL inhibition: only {k} fire at once',
-    c_lh: 'Lateral horn', c_app: 'MBON approach', c_av: 'MBON avoid',
+    c_lh: 'Lateral horn', c_app: 'MBON approach', c_av: 'MBON avoid', c_mbon_n: '{n} MBONs',
     c_pam: 'PAM · reward', c_ppl1: 'PPL1 · punishment',
+    c_pam_n: 'PAM ×{n} · reward', c_ppl1_n: 'PPL1 ×{n} · punishment',
     c_cx: 'Central complex', c_cx2: 'compares the options', c_dn: 'Descending neurons',
     c_move: 'move → cell {c}',
     ph_intro_tag: 'start', ph_intro_title: 'A naive fly',
@@ -75,13 +80,18 @@ const I18N = {
     about: `<p>In 2024–2025 teams from FlyWire (Princeton), HHMI Janelia, the University of Cambridge and Google mapped every neuron and synapse of the fruit fly <i>Drosophila melanogaster</i>: its connectome. This page runs a small model built on one well-understood circuit from that map: the <b>mushroom body</b>, where flies learn which smells, and here which boards, lead to reward or punishment.</p>
 <dl>
 <dt>Eyes · optic lobe (projection neurons)</dt><dd>Turn the board into neural activity: one neuron per cell state and detectors for each line.</dd>
-<dt>Kenyon cells (4000)</dt><dd>Each receives ~7 random inputs (as in the real fly). The APL neuron inhibits them all, so only 5% fire: a sparse, distinctive code for every situation.</dd>
-<dt>MBON approach / avoid</dt><dd>Output neurons. The synapses from Kenyon cells onto them <b>are the memory</b>.</dd>
+{kc}
+<dt>MBON approach / avoid</dt><dd>Output neurons. The synapses from Kenyon cells onto them <b>are the memory</b>.{mbon}</dd>
 <dt>Dopamine: PAM and PPL1</dt><dd>Reward and punishment neurons. They fire according to the prediction error, i.e. how much better or worse the result was than expected, and change only the synapses of Kenyon cells that were active.</dd>
 <dt>Lateral horn</dt><dd>A second, parallel pathway from the senses to behaviour; here it also learns, but slowly and coarsely.</dd>
 <dt>Central complex · descending neurons</dt><dd>Compare the imagined options and trigger the chosen action.</dd>
 </dl>
-<p>Win = reward (+1), draw = small reward (+0.3), loss = punishment (−1). Neuron counts are scaled down and the board-reading layer is simplified. It is a model of the learning principle, not a neuron-by-neuron simulation.</p>`,
+<p>Win = reward (+1), draw = small reward (+0.3), loss = punishment (−1). {tail} It is a model of the learning principle, not a neuron-by-neuron simulation.</p>`,
+    about_kc_syn: '<dt>Kenyon cells ({n})</dt><dd>Each receives ~{claws} random inputs (as in the real fly). The APL neuron inhibits them all, so only 5% fire: a sparse, distinctive code for every situation.</dd>',
+    about_kc_fw: '<dt>Kenyon cells ({n}, real wiring)</dt><dd>Every Kenyon cell of the {side} mushroom body from the FlyWire connectome, with its real input synapses: each board feature is fed into one of the {inputs} input neuron types (mostly olfactory projection neurons such as {ex}), and a cell receives {syn} synapses from about {claws} of them on average. The APL neuron inhibits them all, so only 5% fire: a sparse, distinctive code for every situation.</dd>',
+    about_mbon_fw: ' FlyWire shows {n} MBONs here. Those in compartments that receive mainly PPL1 dopamine drive “approach” ({app}), those under PAM dopamine drive “avoid” ({av}), because dopamine weakens the synapses in its own compartment. The model sums each group into one neuron.',
+    about_tail_syn: 'Neuron counts are scaled down and the board-reading layer is simplified.',
+    about_tail_fw: 'The board-reading layer is simplified: the board is presented as if it were a smell.',
   },
   pl: {
     title: 'Mózg muchy gra w kółko i krzyżyk',
@@ -100,6 +110,10 @@ const I18N = {
     exam: 'Egzamin (bez uczenia)', reset: 'Nowa mucha (zapomnij wszystko)',
     about_title: 'Jak to działa?',
     footer: 'Model inspirowany opublikowanym konektomem muszki owocowej. Rozmiary mózgu są zmniejszone.',
+    footer_fw: 'Połączenia z FlyWire v783 (Dorkenwald i in. 2024, Schlegel i in. 2024; CC-BY 4.0).',
+    badge_fw: 'konektom FlyWire · {side} ciało grzybkowate', badge_syn: 'połączenia syntetyczne',
+    side_right: 'prawe', side_left: 'lewe',
+    notice_rewired: '<p class="bad">Serwer używa teraz innej mapy połączeń, więc poprzednia mucha nie mogła zachować wspomnień. To nowa, niedoświadczona mucha.</p>',
     symbols: 'Ty: <b class="human">{h}</b> · Mucha: <b class="fly">{f}</b>',
     st_your_turn: 'Twój ruch: kliknij pole.', st_thinking: 'Mucha myśli…',
     st_fly_won: '<b>Mucha wygrała.</b>', st_you_won: '<b>Wygrywasz!</b>', st_draw: '<b>Remis.</b>', curve_empty: 'Brak rozegranych gier.',
@@ -119,7 +133,8 @@ const I18N = {
     c_eyes: 'Oczy · płat wzrokowy', c_cells: 'detektory pól: moje / przeciwnika / puste',
     c_lines: 'detektory linii (znaki moje·przeciwnika)',
     c_mb: 'Ciało grzybkowate · {n} komórek Kenyona', c_apl: 'hamowanie APL: aktywnych naraz tylko {k}',
-    c_lh: 'Róg boczny', c_app: 'MBON zbliż się', c_av: 'MBON unikaj',
+    c_lh: 'Róg boczny', c_app: 'MBON zbliż się', c_av: 'MBON unikaj', c_mbon_n: 'MBON: {n}',
+    c_pam_n: 'PAM ×{n} · nagroda', c_ppl1_n: 'PPL1 ×{n} · kara',
     c_pam: 'PAM · nagroda', c_ppl1: 'PPL1 · kara',
     c_cx: 'Kompleks centralny', c_cx2: 'porównuje opcje', c_dn: 'Neurony zstępujące',
     c_move: 'ruch → pole {c}',
@@ -156,13 +171,18 @@ const I18N = {
     about: `<p>W latach 2024–2025 zespoły FlyWire (Princeton), HHMI Janelia, Uniwersytetu Cambridge i Google zmapowały każdy neuron i każdą synapsę muszki owocowej <i>Drosophila melanogaster</i>, czyli jej konektom. Ta strona uruchamia mały model oparty na jednym dobrze poznanym obwodzie z tej mapy: <b>ciele grzybkowatym</b>, w którym muchy uczą się, które zapachy (a tutaj: które plansze) prowadzą do nagrody lub kary.</p>
 <dl>
 <dt>Oczy · płat wzrokowy (neurony projekcyjne)</dt><dd>Zamieniają planszę w aktywność neuronów: jeden neuron na stan pola oraz detektory każdej linii.</dd>
-<dt>Komórki Kenyona (4000)</dt><dd>Każda dostaje ~7 losowych wejść (jak u prawdziwej muchy). Neuron APL hamuje wszystkie, więc odpala tylko 5%, co daje rzadki, charakterystyczny kod każdej sytuacji.</dd>
-<dt>MBON zbliż się / unikaj</dt><dd>Neurony wyjściowe. Synapsy od komórek Kenyona do nich <b>są pamięcią</b>.</dd>
+{kc}
+<dt>MBON zbliż się / unikaj</dt><dd>Neurony wyjściowe. Synapsy od komórek Kenyona do nich <b>są pamięcią</b>.{mbon}</dd>
 <dt>Dopamina: PAM i PPL1</dt><dd>Neurony nagrody i kary. Strzelają proporcjonalnie do błędu przewidywania, czyli tego, o ile wynik był lepszy lub gorszy od oczekiwań, i zmieniają tylko synapsy komórek Kenyona, które były aktywne.</dd>
 <dt>Róg boczny</dt><dd>Druga, równoległa droga od zmysłów do zachowania; tutaj też się uczy, ale wolno i zgrubnie.</dd>
 <dt>Kompleks centralny · neurony zstępujące</dt><dd>Porównują wyobrażone opcje i uruchamiają wybrane działanie.</dd>
 </dl>
-<p>Wygrana = nagroda (+1), remis = mała nagroda (+0,3), przegrana = kara (−1). Liczby neuronów są zmniejszone, a warstwa odczytu planszy uproszczona. To model zasady uczenia, a nie symulacja neuron po neuronie.</p>`,
+<p>Wygrana = nagroda (+1), remis = mała nagroda (+0,3), przegrana = kara (−1). {tail} To model zasady uczenia, a nie symulacja neuron po neuronie.</p>`,
+    about_kc_syn: '<dt>Komórki Kenyona ({n})</dt><dd>Każda dostaje ~{claws} losowych wejść (jak u prawdziwej muchy). Neuron APL hamuje wszystkie, więc odpala tylko 5%, co daje rzadki, charakterystyczny kod każdej sytuacji.</dd>',
+    about_kc_fw: '<dt>Komórki Kenyona ({n}, prawdziwe połączenia)</dt><dd>Wszystkie komórki Kenyona z konektomu FlyWire ({side} ciało grzybkowate) z ich prawdziwymi synapsami wejściowymi: każda cecha planszy trafia do jednego z {inputs} typów neuronów wejściowych (głównie węchowych neuronów projekcyjnych, np. {ex}), a komórka dostaje {syn} synaps średnio od ok. {claws} z nich. Neuron APL hamuje wszystkie, więc odpala tylko 5%, co daje rzadki, charakterystyczny kod każdej sytuacji.</dd>',
+    about_mbon_fw: ' FlyWire pokazuje tu {n} neuronów MBON. Te w przedziałach unerwionych głównie przez dopaminę PPL1 napędzają „zbliż się” ({app}), te pod dopaminą PAM napędzają „unikaj” ({av}), bo dopamina osłabia synapsy we własnym przedziale. Model sumuje każdą grupę w jeden neuron.',
+    about_tail_syn: 'Liczby neuronów są zmniejszone, a warstwa odczytu planszy uproszczona.',
+    about_tail_fw: 'Warstwa odczytu planszy jest uproszczona: plansza jest podawana tak, jakby była zapachem.',
   },
 };
 
@@ -204,6 +224,7 @@ async function api(path, body) {
 
 /* ================= app state ================= */
 let S = null;          // structure from the server
+let notice = null;     // one-time message shown with the intro
 let state = null;      // last /api/state payload
 let game = null;       // current game view
 let busy = false;
@@ -670,6 +691,7 @@ function showError(e) {
 
 async function onCellClick(i) {
   if (busy || training || !game || game.over || game.turn !== -game.fly || game.board[i] !== 0) return;
+  notice = null;
   busy = true;
   const board = game.board.slice();
   board[i] = -game.fly;
@@ -701,6 +723,7 @@ async function onCellClick(i) {
 
 async function newGame(flyStarts) {
   if (busy || training) return;
+  notice = null;
   busy = true;
   refreshControls();
   let d;
@@ -808,6 +831,7 @@ async function resetFly() {
     V.cxBoard = Array(9).fill(0);
     renderSymbols();
     renderBoard(game.board);
+    notice = null;
     showPhase(introPhase());
     refreshControls();
   } catch (e) {
@@ -819,7 +843,7 @@ function introPhase() {
   return {
     tag: () => t('ph_intro_tag'),
     title: () => (state && state.games ? t('ph_intro_title_exp', { n: state.games }) : t('ph_intro_title')),
-    html: () => t('ph_intro_text'),
+    html: () => (notice ? t(notice) : '') + t('ph_intro_text'),
   };
 }
 
@@ -1063,11 +1087,17 @@ function drawOutputs() {
   circle(MBON_AV.x, MBON_AV.y, 12 + 12 * actAv, `rgba(255,92,122,${0.2 + 0.7 * actAv})`, '#ff5c7a', 1.5);
   text(t('c_app'), MBON_APP.x, MBON_APP.y - 32, { size: 11, align: 'center', color: COLORS.text });
   text(t('c_av'), MBON_AV.x, MBON_AV.y + 40, { size: 11, align: 'center', color: COLORS.text });
+  const c = fw();
+  if (c) {
+    const n = (v) => c.mbons.filter((m) => m.valence === v).length;
+    text(t('c_mbon_n', { n: n(1) }), MBON_APP.x, MBON_APP.y - 48, { size: 9, align: 'center' });
+    text(t('c_mbon_n', { n: n(-1) }), MBON_AV.x, MBON_AV.y + 56, { size: 9, align: 'center' });
+  }
   if (v !== null) {
     text(fmt(v), (MBON_APP.x + MBON_AV.x) / 2, (MBON_APP.y + MBON_AV.y) / 2 + 4, { size: 13, bold: true, align: 'center', color: v >= 0 ? '#3ddc84' : '#ff5c7a' });
   }
   // dopamine neurons
-  for (const [pos, level, rgb, label, below] of [[PAM, V.pam, COLORS.good, t('c_pam'), false], [PPL1, V.ppl1, COLORS.bad, t('c_ppl1'), true]]) {
+  for (const [pos, level, rgb, label, below] of [[PAM, V.pam, COLORS.good, fw() ? t('c_pam_n', { n: fw().n_pam }) : t('c_pam'), false], [PPL1, V.ppl1, COLORS.bad, fw() ? t('c_ppl1_n', { n: fw().n_ppl1 }) : t('c_ppl1'), true]]) {
     glow(pos.x, pos.y, 60, rgb, level * 0.8);
     if (level > 0.05) {
       ctx.strokeStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${(level * 0.7).toFixed(2)})`;
@@ -1162,7 +1192,7 @@ function applyLang() {
   document.title = t('title');
   document.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = t(el.dataset.i18n); });
   document.querySelectorAll('[data-lang]').forEach((b) => b.classList.toggle('on', b.dataset.lang === lang));
-  $('#about').innerHTML = t('about');
+  renderAbout();
   renderSymbols();
   renderStatus();
   renderStats();
@@ -1170,6 +1200,30 @@ function applyLang() {
   renderExams();
   renderCurve();
   if (currentPhase) showPhase(currentPhase);
+}
+
+function fw() {
+  return S && S.connectome && S.connectome.kind === 'flywire' ? S.connectome : null;
+}
+
+function renderAbout() {
+  const c = fw();
+  let kc;
+  let mbon = '';
+  if (c) {
+    const n = (v) => c.mbons.filter((m) => m.valence === v).length;
+    const avgSyn = Math.round(c.pn_kc_synapses / (c.n_kc - c.n_kc_silent));
+    kc = t('about_kc_fw', { n: c.n_kc, side: t('side_' + c.side), inputs: c.inputs.length,
+      ex: c.inputs.slice(0, 3).join(', '), syn: avgSyn, claws: c.claws });
+    mbon = t('about_mbon_fw', { n: c.mbons.length, app: n(1), av: n(-1) });
+  } else {
+    kc = t('about_kc_syn', { n: S ? S.n_kc : 4000, claws: S && S.connectome ? S.connectome.claws : 7 });
+  }
+  $('#about').innerHTML = t('about', { kc, mbon, tail: t(c ? 'about_tail_fw' : 'about_tail_syn') });
+  $('#footer').textContent = t(c ? 'footer_fw' : 'footer');
+  const badge = $('#connectome');
+  badge.textContent = !S ? '' : c ? t('badge_fw', { side: t('side_' + c.side) }) : t('badge_syn');
+  badge.classList.toggle('real', !!c);
 }
 
 /* ================= start ================= */
@@ -1200,6 +1254,8 @@ async function init() {
     V.flashSign = new Int8Array(S.n_kc);
     layout();
     resize();
+    renderAbout();
+    if (st.notice === 'connectome_changed') notice = 'notice_rewired';
     applyState(st);
     game = st.game;
     V.eyeBoard = game.board.slice();

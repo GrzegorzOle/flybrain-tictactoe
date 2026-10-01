@@ -17,8 +17,8 @@ from flask import Flask, jsonify, make_response, request, send_from_directory
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from brain import (
-    K_ACTIVE, LINE_PATTERNS, LINES, N_CELL, N_KC, N_PN, REWARD_DRAW,
-    REWARD_LOSS, REWARD_WIN, FlyBrain, benchmark, encode, legal_moves,
+    CONNECTOME, K_ACTIVE, LINE_PATTERNS, LINES, N_CELL, N_KC, N_PN, REWARD_DRAW,
+    REWARD_LOSS, REWARD_WIN, ConnectomeMismatch, FlyBrain, benchmark, encode, legal_moves,
     play_training_game, reward_for, winner, winning_line,
 )
 
@@ -98,6 +98,11 @@ def session(create=True):
                 s.brain.load(npz)
                 with open(meta_path) as f:
                     s.meta = json.load(f)
+            except ConnectomeMismatch:
+                # The server now runs a different wiring diagram, so the old
+                # memories cannot be mapped onto it: start a new fly.
+                s = Session(token)
+                s.meta["notice"] = "connectome_changed"
             except (OSError, ValueError, KeyError):
                 s = Session(token)
         yield s
@@ -183,6 +188,7 @@ def state_payload(s):
         "plasticity": _r(b.lr / b.base_lr, 3),
         "exams": s.meta.get("exams", [])[-20:],
         "game": game_view(s.meta["game"]),
+        "notice": s.meta.pop("notice", None),
     }
 
 
@@ -243,6 +249,7 @@ def index():
 def structure():
     return jsonify({
         "n_pn": N_PN, "n_cell": N_CELL, "n_kc": N_KC, "k_active": K_ACTIVE,
+        "connectome": {"id": CONNECTOME.id, **CONNECTOME.info},
         "lines": LINES, "line_patterns": LINE_PATTERNS,
         "rewards": {"win": REWARD_WIN, "draw": REWARD_DRAW, "loss": REWARD_LOSS},
     })
